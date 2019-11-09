@@ -7,6 +7,7 @@ Created on Sun Nov 10 01:04:51 2019
 
 from keras.layers import Dense, BatchNormalization, Flatten, Dropout
 from keras.models import Model
+from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.applications.densenet import DenseNet121
 from keras.models import load_model
@@ -60,7 +61,7 @@ checkpoint = ModelCheckpoint(model_name+'.h5',monitor='val_acc',verbose=1,save_b
 early_stop = EarlyStopping(monitor='val_acc',min_delta=0,patience=10,verbose=1,mode='auto')
 
 # Compile the model
-tr_model.compile(loss='categorical_crossentropy',optimizer='nadam',metrics=['accuracy'])
+tr_model.compile(loss='categorical_crossentropy',optimizer=Adam(1e-5),metrics=['accuracy'])
 
 # train the model
 history = tr_model.fit_generator(
