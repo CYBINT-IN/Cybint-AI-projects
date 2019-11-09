@@ -18,7 +18,7 @@ choices=['vgg_16','vgg_19','resnet_152','simple']
 model_name = choices[2]
 
 is_transfer = True
-num_freeze_layer = 100
+num_freeze_layer = 600
 num_classes = 4
 weights_path = 'resnet152_weights_tf.h5'
 input_shape = (224,224,3) # Input Shape for Resnet152
