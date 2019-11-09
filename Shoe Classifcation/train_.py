@@ -15,7 +15,7 @@ from os.path import isfile
 
 
 choices=['vgg_16','vgg_19','resnet_152','simple']
-model_name = choices[1]
+model_name = choices[2]
 
 is_transfer = True
 num_freeze_layer = 100
@@ -48,7 +48,7 @@ checkpoint = ModelCheckpoint(model_name+'.h5',monitor='val_acc',verbose=1,save_b
 early_stop = EarlyStopping(monitor='val_acc',min_delta=0,patience=10,verbose=1,mode='auto')
 
 # Compile the model
-tr_model.compile(loss='categorical_crossentropy',optimizer='nadam',metrics=['accuracy'])
+tr_model.compile(loss='categorical_crossentropy',optimizer=Adam(1e-5),metrics=['accuracy'])
 
 # train the model
 history = tr_model.fit_generator(
