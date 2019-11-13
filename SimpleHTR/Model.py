@@ -17,7 +17,7 @@ class Model:
 	"minimalistic TF model for HTR"
 
 	# model constants
-	batchSize = 50
+	batchSize = 100
 	imgSize = (128, 32)
 	maxTextLen = 32
 
@@ -56,9 +56,9 @@ class Model:
 		cnnIn4d = tf.expand_dims(input=self.inputImgs, axis=3)
 
 		# list of parameters for the layers
-		kernelVals = [5, 5, 3, 3, 3]
-		featureVals = [1, 32, 64, 128, 128, 256]
-		strideVals = poolVals = [(2,2), (2,2), (1,2), (1,2), (1,2)]
+		kernelVals = [5, 5, 3, 3]
+		featureVals = [1, 32, 64, 128, 256]
+		strideVals = poolVals = [(2,2), (2,2), (1,2), (1,2)]
 		numLayers = len(strideVals)
 
 		# create layers
@@ -78,8 +78,8 @@ class Model:
 		rnnIn3d = tf.squeeze(self.cnnOut4d, axis=[2])
 
 		# basic cells which is used to build RNN
-		numHidden = 256
-		cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(3)] # 3 layers
+		numHidden = 128
+		cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(1)] # 1 layers
 
 		# stack basic cells
 		stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
