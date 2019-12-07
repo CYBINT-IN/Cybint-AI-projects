@@ -20,9 +20,9 @@ def create_dict_bboxes(list_all, split='train'):
     return dict_
 
 def get_dict_bboxes():
-    with open('./category/img/anno/list_category_img.txt', 'r') as category_img_file, \
-            open('./category/img/list_eval_partition.txt', 'r') as eval_partition_file, \
-            open('./category/img/list_bbox.txt', 'r') as bbox_file:
+    with open('./img/anno/list_category_img.txt', 'r') as category_img_file, \
+            open('./img/list_eval_partition.txt', 'r') as eval_partition_file, \
+            open('./img/list_bbox.txt', 'r') as bbox_file:
         list_category_img = [line.rstrip('\n') for line in category_img_file][2:]
         list_eval_partition = [line.rstrip('\n') for line in eval_partition_file][2:]
         list_bbox = [line.rstrip('\n') for line in bbox_file][2:]
