@@ -5,6 +5,11 @@ Created on Sat Dec  7 15:43:43 2019
 @author: tanma
 """
 
+import re
+import cv2
+
+splitter = re.compile("\s+")
+
 # Get and Create Bounding Boxes
 def create_dict_bboxes(list_all, split='train'):
     lst = [(line[0], line[1], line[3], line[2]) for line in list_all if line[2] == split]
