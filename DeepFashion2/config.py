@@ -30,6 +30,7 @@ import selectivesearch
 
 import logging
 import colored_traceback
+import skimage
 colored_traceback.add_hook(always=True)
 FORMAT = "[%(lineno)4s : %(funcName)-30s ] %(message)s"
 #logging.basicConfig(level=logging.INFO, format=FORMAT)
