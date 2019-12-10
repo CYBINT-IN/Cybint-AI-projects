@@ -25,7 +25,6 @@ from PIL import ImageFont
 from PIL import ImageDraw
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import skimage.data
 import selectivesearch
 
 
