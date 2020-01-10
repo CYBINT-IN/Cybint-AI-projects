@@ -1,11 +1,15 @@
 *__pycache__
+
+# Skipping Datasets
 /DeepFashion/data
 /DeepFashion/img
 /Shoe Classification/data
 /Shoe Classification/train
 /Shoe Classification/test
-*__pycache__
-*.h5
+/SimpleHTR/data
 *.txt
 *.zip
 *.pk
+
+# Model Skipping
+*.h5
