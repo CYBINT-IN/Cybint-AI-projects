@@ -8,7 +8,10 @@ import editdistance
 from DataLoader import DataLoader, Batch
 from Model import Model, DecoderType
 from SamplePreprocessor import preprocess
+from autocorrect import Speller
 
+
+spell = Speller(lang='en')
 
 class FilePaths:
 	"filenames and paths to data"
@@ -74,12 +77,12 @@ def validate(model, loader):
 		
 		print('Ground truth -> Recognized')	
 		for i in range(len(recognized)):
-			numWordOK += 1 if batch.gtTexts[i] == recognized[i] else 0
+			numWordOK += 1 if batch.gtTexts[i] == spell(recognized[i]) else 0
 			numWordTotal += 1
-			dist = editdistance.eval(recognized[i], batch.gtTexts[i])
+			dist = editdistance.eval(spell(recognized[i]), batch.gtTexts[i])
 			numCharErr += dist
 			numCharTotal += len(batch.gtTexts[i])
-			print('[OK]' if dist==0 else '[ERR:%d]' % dist,'"' + batch.gtTexts[i] + '"', '->', '"' + recognized[i] + '"')
+			print('[OK]' if dist==0 else '[ERR:%d]' % dist,'"' + batch.gtTexts[i] + '"', '->', '"' + spell(recognized[i]) + '"')
 	
 	# print validation result
 	charErrorRate = numCharErr / numCharTotal
@@ -93,7 +96,7 @@ def infer(model, fnImg):
 	img = preprocess(cv2.imread(fnImg, cv2.IMREAD_GRAYSCALE), Model.imgSize)
 	batch = Batch(None, [img])
 	(recognized, probability) = model.inferBatch(batch, True)
-	print('Recognized:', '"' + recognized[0] + '"')
+	print('Recognized:', '"' + spell(recognized[0]) + '"')
 	print('Probability:', probability[0])
 
 
