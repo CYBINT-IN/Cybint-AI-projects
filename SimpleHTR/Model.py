@@ -56,9 +56,9 @@ class Model:
 		cnnIn4d = tf.expand_dims(input=self.inputImgs, axis=3)
 
 		# list of parameters for the layers
-		kernelVals = [5, 5, 3, 3]
-		featureVals = [1, 32, 64, 128, 256]
-		strideVals = poolVals = [(2,2), (2,2), (1,2), (1,2)]
+		kernelVals = [5, 5, 3, 3, 3]
+		featureVals = [1, 32, 64, 128, 128, 256]
+		strideVals = poolVals = [(2,2), (2,2), (1,2), (1,2), (1,2)]
 		numLayers = len(strideVals)
 
 		# create layers
@@ -68,7 +68,7 @@ class Model:
 			conv = tf.nn.conv2d(pool, kernel, padding='SAME',  strides=(1,1,1,1))
 			conv_norm = tf.layers.batch_normalization(conv, training=self.is_train)
 			relu = tf.nn.relu(conv_norm)
-			pool = tf.nn.max_pool(relu, (1, poolVals[i][0], poolVals[i][1], 1), (1, strideVals[i][0], strideVals[i][1], 1), 'VALID')
+			pool = tf.nn.max_pool(relu, (1, poolVals[i][0], poolVals[i][1], 1), (1, strideVals[i][0], strideVals[i][1], 1), 'SAME')
 
 		self.cnnOut4d = pool
 
