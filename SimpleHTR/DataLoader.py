@@ -8,6 +8,14 @@ import cv2
 from SamplePreprocessor import preprocess
 
 
+class FilePaths:
+	"filenames and paths to data"
+	fnCharList = 'model/charList.txt'
+	fnAccuracy = 'model/accuracy.txt'
+	fnTrain = 'data/'
+	fnInfer = 'data/test.png'
+	fnCorpus = 'data/corpus.txt'
+
 class Sample:
 	"sample from the dataset"
 	def __init__(self, gtText, filePath):
@@ -30,7 +38,7 @@ class DataLoader:
 
 		assert filePath[-1]=='/'
 
-		self.dataAugmentation = False
+		self.dataAugmentation = True
 		self.currIdx = 0
 		self.batchSize = batchSize
 		self.imgSize = imgSize
