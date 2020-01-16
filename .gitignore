@@ -7,9 +7,14 @@
 /Shoe Classification/train
 /Shoe Classification/test
 /SimpleHTR/data
+/LineHTR/data
 *.txt
 *.zip
 *.pk
 
 # Model Skipping
 *.h5
+/LineHTR/model
+
+# Logs Skipped
+*logs
