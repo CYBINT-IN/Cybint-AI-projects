@@ -17,7 +17,7 @@ class Model:
 	"minimalistic TF model for HTR"
 
 	# model constants
-	batchSize = 50
+	batchSize = 128
 	imgSize = (128, 32)
 	maxTextLen = 32
 
@@ -45,7 +45,7 @@ class Model:
 		self.learningRate = tf.placeholder(tf.float32, shape=[])
 		self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) 
 		with tf.control_dependencies(self.update_ops):
-			self.optimizer = tf.train.AdamOptimizer(self.learningRate).minimize(self.loss)
+			self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
 
 		# initialize TF
 		(self.sess, self.saver) = self.setupTF()
@@ -68,7 +68,7 @@ class Model:
 			conv = tf.nn.conv2d(pool, kernel, padding='SAME',  strides=(1,1,1,1))
 			conv_norm = tf.layers.batch_normalization(conv, training=self.is_train)
 			relu = tf.nn.relu(conv_norm)
-			pool = tf.nn.max_pool(relu, (1, poolVals[i][0], poolVals[i][1], 1), (1, strideVals[i][0], strideVals[i][1], 1), 'VALID')
+			pool = tf.nn.avg_pool(relu, (1, poolVals[i][0], poolVals[i][1], 1), (1, strideVals[i][0], strideVals[i][1], 1), 'VALID')
 
 		self.cnnOut4d = pool
 
@@ -78,8 +78,7 @@ class Model:
 		rnnIn3d = tf.squeeze(self.cnnOut4d, axis=[2])
 
 		# basic cells which is used to build RNN
-		numHidden = 512
-		cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(2)] # 2 layers
+		cells = [tf.contrib.rnn.DropoutWrapper(tf.contrib.cudnn_rnn.CudnnCompatibleLSTMCell(256),0.5,0.5,0.5) for _ in range(2)] # 2 layers
 
 		# stack basic cells
 		stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
@@ -92,7 +91,7 @@ class Model:
 		concat = tf.expand_dims(tf.concat([fw, bw], 2), 2)
 									
 		# project output to chars (including blank): BxTx1x2H -> BxTx1xC -> BxTxC
-		kernel = tf.Variable(tf.truncated_normal([1, 1, numHidden * 2, len(self.charList) + 1], stddev=0.1))
+		kernel = tf.Variable(tf.truncated_normal([1, 1, 256 * 2, len(self.charList) + 1], stddev=0.1))
 		self.rnnOut3d = tf.squeeze(tf.nn.atrous_conv2d(value=concat, filters=kernel, rate=1, padding='SAME'), axis=[2])
 		
 
