@@ -8,68 +8,54 @@ import editdistance
 from DataLoader import DataLoader, Batch
 from Model import Model, DecoderType
 from SamplePreprocessor import preprocess
-from autocorrect import Speller
 
 
-spell = Speller(lang='en')
+class FilePaths:
+	"filenames and paths to data"
+	fnCharList = 'model/charList.txt'
+	fnAccuracy = 'model/accuracy.txt'
+	fnTrain = 'data/'
+	fnInfer = 'data/test.png'
+	fnCorpus = 'data/corpus.txt'
 
 
 def train(model, loader):
-    """ Train the neural network """
-    epoch = 0  # Number of training epochs since start
-    bestCharErrorRate = float('inf')  # Best valdiation character error rate
-    noImprovementSince = 0  # Number of epochs no improvement of character error rate occured
-    earlyStopping = 5  # Stop training after this number of epochs without improvement
-    batchNum = 0
+	"train NN"
+	epoch = 0 # number of training epochs since start
+	bestCharErrorRate = float('inf') # best valdiation character error rate
+	noImprovementSince = 0 # number of epochs no improvement of character error rate occured
+	earlyStopping = 5 # stop training after this number of epochs without improvement
+	while True:
+		epoch += 1
+		print('Epoch:', epoch)
 
-    totalEpoch = loader.numTrainSamplesPerEpoch//model.batchSize
+		# train
+		print('Train NN')
+		loader.trainSet()
+		while loader.hasNext():
+			iterInfo = loader.getIteratorInfo()
+			batch = loader.getNext()
+			loss = model.trainBatch(batch)
+			print('Batch:', iterInfo[0],'/', iterInfo[1], 'Loss:', loss)
 
-    while True:
-        epoch += 1
-        print('Epoch:', epoch, '/', totalEpoch)
+		# validate
+		charErrorRate = validate(model, loader)
+		
+		# if best validation accuracy so far, save model parameters
+		if charErrorRate < bestCharErrorRate:
+			print('Character error rate improved, save model')
+			bestCharErrorRate = charErrorRate
+			noImprovementSince = 0
+			model.save()
+			open(FilePaths.fnAccuracy, 'w').write('Validation character error rate of saved model: %f%%' % (charErrorRate*100.0))
+		else:
+			print('Character error rate not improved')
+			noImprovementSince += 1
 
-        # Train
-        print('Train neural network')
-        loader.trainSet()
-        while loader.hasNext():
-            batchNum += 1
-            iterInfo = loader.getIteratorInfo()
-            batch = loader.getNext()
-            loss = model.trainBatch(batch, batchNum)
-            print('Batch:', iterInfo[0], '/', iterInfo[1], 'Loss:', loss)
-
-        # Validate
-        charErrorRate, addressAccuracy, wordErrorRate = validate(model, loader)
-        cer_summary = tf.Summary(value=[tf.Summary.Value(
-            tag='charErrorRate', simple_value=charErrorRate)])  # Tensorboard: Track charErrorRate
-        # Tensorboard: Add cer_summary to writer
-        model.writer.add_summary(cer_summary, epoch)
-        address_summary = tf.Summary(value=[tf.Summary.Value(
-            tag='addressAccuracy', simple_value=addressAccuracy)])  # Tensorboard: Track addressAccuracy
-        # Tensorboard: Add address_summary to writer
-        model.writer.add_summary(address_summary, epoch)
-        wer_summary = tf.Summary(value=[tf.Summary.Value(
-            tag='wordErrorRate', simple_value=wordErrorRate)])  # Tensorboard: Track wordErrorRate
-        # Tensorboard: Add wer_summary to writer
-        model.writer.add_summary(wer_summary, epoch)
-
-        # If best validation accuracy so far, save model parameters
-        if charErrorRate < bestCharErrorRate:
-            print('Character error rate improved, save model')
-            bestCharErrorRate = charErrorRate
-            noImprovementSince = 0
-            model.save()
-            open(FilePaths.fnAccuracy, 'w').write(
-                'Validation character error rate of saved model: %f%%' % (charErrorRate*100.0))
-        else:
-            print('Character error rate not improved')
-            noImprovementSince += 1
-
-        # Stop training if no more improvement in the last x epochs
-        if noImprovementSince >= earlyStopping:
-            print('No more improvement since %d epochs. Training stopped.' %
-                  earlyStopping)
-            break
+		# stop training if no more improvement in the last x epochs
+		if noImprovementSince >= earlyStopping:
+			print('No more improvement since %d epochs. Training stopped.' % earlyStopping)
+			break
 
 
 def validate(model, loader):
@@ -88,12 +74,12 @@ def validate(model, loader):
 		
 		print('Ground truth -> Recognized')	
 		for i in range(len(recognized)):
-			numWordOK += 1 if batch.gtTexts[i] == spell(recognized[i]) else 0
+			numWordOK += 1 if batch.gtTexts[i] == recognized[i] else 0
 			numWordTotal += 1
-			dist = editdistance.eval(spell(recognized[i]), batch.gtTexts[i])
+			dist = editdistance.eval(recognized[i], batch.gtTexts[i])
 			numCharErr += dist
 			numCharTotal += len(batch.gtTexts[i])
-			print('[OK]' if dist==0 else '[ERR:%d]' % dist,'"' + batch.gtTexts[i] + '"', '->', '"' + spell(recognized[i]) + '"')
+			print('[OK]' if dist==0 else '[ERR:%d]' % dist,'"' + batch.gtTexts[i] + '"', '->', '"' + recognized[i] + '"')
 	
 	# print validation result
 	charErrorRate = numCharErr / numCharTotal
@@ -107,16 +93,9 @@ def infer(model, fnImg):
 	img = preprocess(cv2.imread(fnImg, cv2.IMREAD_GRAYSCALE), Model.imgSize)
 	batch = Batch(None, [img])
 	(recognized, probability) = model.inferBatch(batch, True)
-	print('Recognized:', '"' + spell(recognized[0]) + '"')
+	print('Recognized:', '"' + recognized[0] + '"')
 	print('Probability:', probability[0])
 
-class FilePaths:
-	"filenames and paths to data"
-	fnCharList = 'model/charList.txt'
-	fnAccuracy = 'model/accuracy.txt'
-	fnTrain = 'data/'
-	fnInfer = 'data/test.png'
-	fnCorpus = 'data/corpus.txt'
 
 def main():
 	"main function"
