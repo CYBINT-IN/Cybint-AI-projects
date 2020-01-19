@@ -45,7 +45,7 @@ class Model:
 		self.learningRate = tf.placeholder(tf.float32, shape=[])
 		self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) 
 		with tf.control_dependencies(self.update_ops):
-			self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
+			self.optimizer = tf.train.AdamOptimizer(self.learningRate).minimize(self.loss)
 
 		# initialize TF
 		(self.sess, self.saver) = self.setupTF()
@@ -78,7 +78,7 @@ class Model:
 		rnnIn3d = tf.squeeze(self.cnnOut4d, axis=[2])
 
 		# basic cells which is used to build RNN
-		cells = [tf.contrib.rnn.DropoutWrapper(tf.contrib.cudnn_rnn.CudnnCompatibleLSTMCell(256),0.5,0.5,0.5) for _ in range(2)] # 2 layers
+		cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(2)] # 2 layers
 
 		# stack basic cells
 		stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
