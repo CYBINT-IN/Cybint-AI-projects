@@ -8,6 +8,8 @@
 /Shoe Classification/test
 /SimpleHTR/data
 /LineHTR/data
+/LineSeg/data
+/LineSeg/out
 *.txt
 *.zip
 *.pk
