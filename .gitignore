@@ -18,3 +18,9 @@
 
 # Logs Skipped
 *logs
+
+# Images Skipped
+*.png
+*.jfif
+*.jpeg
+*.jpg
