@@ -3,8 +3,10 @@ from __future__ import print_function
 
 import sys
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import os
+
+tf.disable_v2_behavior()
 
 
 class DecoderType:
@@ -45,7 +47,7 @@ class Model:
 		self.learningRate = tf.placeholder(tf.float32, shape=[])
 		self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS) 
 		with tf.control_dependencies(self.update_ops):
-			self.optimizer = tf.train.AdamOptimizer(self.learningRate).minimize(self.loss)
+			self.optimizer = tf.train.RMSPropOptimizer(self.learningRate).minimize(self.loss)
 
 		# initialize TF
 		(self.sess, self.saver) = self.setupTF()
@@ -78,10 +80,10 @@ class Model:
 		rnnIn3d = tf.squeeze(self.cnnOut4d, axis=[2])
 
 		# basic cells which is used to build RNN
-		cells = [tf.contrib.rnn.LSTMCell(num_units=numHidden, state_is_tuple=True) for _ in range(2)] # 2 layers
+		cells = [tf.nn.rnn_cell.LSTMCell(num_units=256, state_is_tuple=True) for _ in range(2)] # 2 layers
 
 		# stack basic cells
-		stacked = tf.contrib.rnn.MultiRNNCell(cells, state_is_tuple=True)
+		stacked = tf.nn.rnn_cell.MultiRNNCell(cells, state_is_tuple=True)
 
 		# bidirectional RNN
 		# BxTxF -> BxTx2H
