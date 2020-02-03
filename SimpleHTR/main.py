@@ -6,9 +6,6 @@ from DataLoader import DataLoader, Batch
 from Model import Model, DecoderType
 from SamplePreprocessor import preprocess
 
-from autocorrect import Speller
-
-spell = Speller(lang = "en")
 
 class FilePaths:
 	"filenames and paths to data"
@@ -93,7 +90,7 @@ def infer(model, fnImg):
 	img = preprocess(cv2.imread(fnImg, cv2.IMREAD_GRAYSCALE), Model.imgSize)
 	batch = Batch(None, [img])
 	(recognized, probability) = model.inferBatch(batch, True)
-	print('Recognized:', '"' + spell(recognized[0]) + '"')
+	print('Recognized:', '"' + recognized[0] + '"')
 	print('Probability:', probability[0])
 
 
