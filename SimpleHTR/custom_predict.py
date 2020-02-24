@@ -6,7 +6,7 @@ Created on Mon Feb  3 01:05:28 2020
 """
 
 import cv2
-import os
+import os, sys
 
 from DataLoader import DataLoader, Batch
 from Model import Model, DecoderType
@@ -27,3 +27,4 @@ for i in imgFiles:
     for j in images:
         if(j != "summary.png"):
             infer(model,"out/"+ i + "/" + j)
+            
